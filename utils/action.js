@@ -16,7 +16,7 @@ export const generateChatResponse = async (chatMessage) => {
     temperature: 0,
   });
   console.log(response.choices[0].message);
-  console.log(response);
+  console.log(responses);
 
   return 'Peek-A-Boo';
 };
