@@ -5,7 +5,7 @@ import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query
 const AllToursPage = async () => {
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: ['tours'],
+    queryKey: ['tours', ''],
     queryFn: () => getAllTours(),
   });
 
