@@ -1,6 +1,6 @@
 'use client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getExistingTour, generateTourResponse, createNewTour, fetchUserTokensById, subtractTokens } from '@/utils/actions';
+import { getExistingTour, generateTourResponse, createNewTour, fetchUserTokensById, subtractTokens } from '@/utils/action';
 import TourInfo from './TourInfo';
 import toast from 'react-hot-toast';
 import { useAuth } from '@clerk/nextjs';
