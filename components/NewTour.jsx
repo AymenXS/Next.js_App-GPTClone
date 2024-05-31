@@ -1,11 +1,12 @@
 'use client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getExistingTour, generateTourResponse, createNewTour } from '@/utils/action';
+import { getExistingTour, generateTourResponse, createNewTour, fetchUserTokensById, subtractTokens } from '@/utils/actions';
 import TourInfo from './TourInfo';
 import toast from 'react-hot-toast';
-
+import { useAuth } from '@clerk/nextjs';
 const NewTour = () => {
   const queryClient = useQueryClient();
+  const { userId } = useAuth();
   const {
     mutate,
     isPending,
@@ -15,21 +16,29 @@ const NewTour = () => {
       const existingTour = await getExistingTour(destination);
       if (existingTour) return existingTour;
 
-      const newTour = await generateTourResponse(destination);
-      if (newTour) {
-        const response = await createNewTour(newTour);
-        queryClient.invalidateQueries({ queryKey: ['tours'] });
-        return newTour;
+      const currentTokens = await fetchUserTokensById(userId);
+
+      if (currentTokens < 300) {
+        toast.error('Token balance too low....');
+        return;
       }
 
-      toast.error('No matching city found...');
-      return null;
+      const newTour = await generateTourResponse(destination);
+      if (!newTour) {
+        toast.error('No matching city found...');
+        return null;
+      }
+
+      const response = await createNewTour(newTour.tour);
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      const newTokens = await subtractTokens(userId, newTour.tokens);
+      toast.success(`${newTokens} tokens remaining...`);
+      return newTour.tour;
     },
   });
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     const destination = Object.fromEntries(formData.entries());
     mutate(destination);
   };
@@ -45,7 +54,9 @@ const NewTour = () => {
         <div className="join w-full">
           <input type="text" className="input input-bordered join-item w-full" placeholder="city" name="city" required />
           <input type="text" className="input input-bordered join-item w-full" placeholder="country" name="country" required />
-          <button className="btn btn-primary join-item">generate tour</button>
+          <button className="btn btn-primary join-item" type="submit">
+            generate tour
+          </button>
         </div>
       </form>
       <div className="mt-16">{tour ? <TourInfo tour={tour} /> : null}</div>
