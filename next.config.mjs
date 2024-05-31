@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false,
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'oaidalleapiprodscus.blop.core.windows.net',
+        hostname: 'oaidalleapiprodscus.blob.core.windows.net',
         port: '',
         pathname: '/private/**',
       },
@@ -18,4 +19,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
